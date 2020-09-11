@@ -47,7 +47,7 @@ ASGI = Asynchronous Server Gateway Interface
 
 ASGI requests are becoming the norm in Javascript land (HTTP/2 - Websockets), especially if you want to use React, Angular or Vue for the frontend.
 
-## Exercise
+## Create Polls App
 
 - Run the server - You need to be inside the mysite directory.
 
@@ -116,3 +116,13 @@ urlpatterns = [
 The include() function allows referencing other URLconfs. Whenever Django encounters include(), it chops off whatever part of the URL matched up to that point and sends the remaining string to the included URLconf.
 
 - Run the server again
+
+## Excercise
+
+1) Create Project
+2) Run the server
+3) Create Poll App
+4) Write Polls Views
+5) Create a URLconf for the Polls View
+6) Point the root URLconf at the **polls.urls** module.
+7) Run the server again
