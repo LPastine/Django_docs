@@ -213,4 +213,79 @@ Shall the new role be a superuser? (y/n) y
 - Create database
 ```bash
 postgres@server:~$ createdb mysite
+```
 
+By default the apps in INSTALLED_APPS need a database to work. 
+
+- To create the tables run this command.
+
+```bash
+python manage.py migrate
+```
+
+<br>
+
+## Creating models
+
+A model is the single, definitive truth about your data. It contains the essential fields and behaviors of the data you're storing. The goal is to define your data model in one place and automatically derive things from it.
+
+- Create the polls models.
+
+>polls/models.py
+```python
+from django.db import models
+
+class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField('date published')
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice_text = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+```
+
+Each model is represented by a class that subclasses django.db.models.Model
+
+Each model has class variables that are instances of a Field class, that tells Django what data type each field holds.
+
+A relationship is defined between these classes using **ForeignKey**, that tells Django each **Choice** is related to a single **Question**.
+
+- Add the Polls App to INSTALLED_APPS
+
+>mysite/settings.py
+```python
+INSTALLED_APPS = [
+    'polls.apps.PollsConfig',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+]
+```
+
+Migrations are how Django stores changes to your models.
+
+- Make migrations for polls app.
+
+```bash
+python manage.py makemigrations polls
+```
+
+If you want to see what it's happening in SQL.
+```bash
+python manage.py sqlmigrate polls 0001
+```
+
+- Run migrate to to create the polls tables in your database.
+```bash
+python manage.py migrate
+```
+The migrate command takes all the migrations that haven't been applied and runs them against your database.
+
+3 step guide for model changes:
+- Change your models (in models.py)
+- Run python manage.py makemigrations to create migrations for those changes
+- Run python manage.py migrate to apply those changes to the database.
