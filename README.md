@@ -126,3 +126,91 @@ The include() function allows referencing other URLconfs. Whenever Django encoun
 5) Create a URLconf for the Polls View
 6) Point the root URLconf at the **polls.urls** module.
 7) Run the server again
+
+<br>
+
+# Django Tutorial 2
+
+## Database Setup
+
+<br>
+
+If you plan to use Django's database API, you'll need to make sure a database server is running. Django is officially supported with PostgreSQL, MariaDB, MySQL, Oracle, SQLite.
+
+## Installing Postgres
+
+<br>
+
+- Check if ubuntu is updated
+```bash
+sudo apt update
+```
+
+<br>
+
+As Google dropped support for 32-bit Chrome on Linux it triggers an error when updating apt in 64-bit systems with multiarch enabled.
+- Confirm you are using 64 bit ubuntu with multiarch enabled issue
+```bash
+dpkg --print-foreign-architectures
+> i386
+dpkg --print-architecture
+> amd64
+sudo dpkg --remove-architecture i386
+```
+
+<br>
+
+- Add Postgres APT repository
+```bash
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get -y install postgresql-12
+```
+
+<br>
+
+- Install postgresql with contrib package and pgadmin4
+```bash
+sudo apt install postgresql-contrib pgadmin4
+```
+
+<br>
+
+- Install psycopg2 that is an adapter for python.
+```bash
+pip install psycopg2-binary
+```
+
+<br>
+
+- Create password for default user
+
+```bash
+$ sudo -i -u postgres
+postgres@ALTER:$ psql
+postgres@ALTER:$ alter user postgres with password 'password';
+\q
+exit
+```
+
+<br>
+
+- Visualize databases
+```bash
+sudo -i -u postgres
+psql -l
+```
+
+- Create a role. The role will have a database with the same name that it will be able to access.
+```bash
+postgres@server:~$ createuser --interactive
+
+Enter name of role to add: mysite
+Shall the new role be a superuser? (y/n) y
+```
+
+- Create database
+```bash
+postgres@server:~$ createdb mysite
+
