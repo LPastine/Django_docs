@@ -117,7 +117,7 @@ The include() function allows referencing other URLconfs. Whenever Django encoun
 
 - Run the server again
 
-## Excercise
+## Excercise 1
 
 1) Create Project
 2) Run the server
@@ -289,3 +289,10 @@ The migrate command takes all the migrations that haven't been applied and runs 
 - Change your models (in models.py)
 - Run python manage.py makemigrations to create migrations for those changes
 - Run python manage.py migrate to apply those changes to the database.
+
+## Exercise 2
+
+ - Create the polls models.
+- Add the Polls App to INSTALLED_APPS
+- Make migrations for polls app.
+- Apply migrations to database
