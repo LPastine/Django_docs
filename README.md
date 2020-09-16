@@ -296,3 +296,86 @@ The migrate command takes all the migrations that haven't been applied and runs 
 - Add the Polls App to INSTALLED_APPS
 - Make migrations for polls app.
 - Apply migrations to database
+
+## Playing with the API
+
+- Invoke python shell
+```bash
+python manage.py shell
+```
+It shows a little excercise with the API, and it's pretty cool because you interact with the API in a OOP way.
+
+- Adjust models so that we receive a better text representation of the data stored in the objects.
+
+>polls/models.py
+```python
+from django.db import models
+
+class Question(models.Model):
+    #...
+    def __str__(self):
+        return self.question_text
+    
+class Choice(models.Model):
+    #...
+    def __str__(self):
+        return self.choice_text
+```
+
+It's important to add __str__() methods to your models, not only for your own convenience when dealing with the interactive prompt, but also because objects' representations are used throughout Django's automatically-generated admin.
+
+- Create a method to Question model
+
+>polls/models.py
+```python
+import datetime
+
+from django.db import models
+from django.utils import timezone
+
+class Question(models.Model):
+    #...
+    def was_published_recently(self):
+        return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
+```
+
+## Django Admin
+
+The admin isn't intended to be used by site visitors. It's for site managers.
+
+- Create an admin user
+
+```bash
+python manage.py createsuperuser
+```
+```bash
+Username: <adminname>
+Email adress: <admin@example.com>
+```
+- Start development server
+```bash
+python manage.py runserver
+```
+and enter in:
+<br>
+http://127.0.0.1:8000/admin/
+
+- Make the poll app modifiable in the admin.
+
+We ned to tell the admin that Question objects have an admin interface.
+
+>polls/admin.py
+```python
+from django.contrib import admin
+
+from .models import Question
+
+admin.site.register(Questions)
+```
+
+## Exercise 3
+
+ - Adjust models so that we receive a better text representation of the data stored in the objects.
+- Create a method to Question model
+- Start development server
+- Make the poll app modifiable in the admin.
