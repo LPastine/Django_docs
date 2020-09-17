@@ -379,3 +379,118 @@ admin.site.register(Questions)
 - Create a method to Question model
 - Start development server
 - Make the poll app modifiable in the admin.
+
+# Django Tutorial 3
+
+## Views
+
+- Writing more views(detail, results, vote)
+>polls/views.py
+```python
+def detail(request, question_id):
+    return HttpResponse("You're looking at question %s." % question_id)
+
+def results(request, question_id):
+    response = "You're looking at the results of question %s."
+    return HttpResponse(response % question_id)
+
+def vote(request, question_id):
+    return HttpResponse("You're voting on question %s." % question_id)
+```
+- Wire these views into the polls.urls.
+
+>polls/urls.py
+```python
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    # ex: /polls/
+    path('', views.index, name='index'),
+    # ex: /polls/5/
+    path('<int:question_id>/', views.detail, name='detail'),
+    # ex: /polls/5/results/
+    path('<int:question_id>/results/', views.results, name='results'),
+    # ex: /polls/5/vote/
+    path('<int:question_id>/vote/', views.vote, name='vote'),
+]
+```
+
+Each view is responsible for doing one of two things: returnin an HttpResponse object containing the content for the requested page, or raising an exception such as Http404. The rest is up to you.
+
+- Change index() view so that it displays the latest 5 poll questions in the system, separated with commas, according to the publication date.
+
+>polls/views.py
+```python
+from django.http import HttpResponse
+
+from .models import Question
+
+
+def index(request):
+    latest_question_list = Question.objects.order_by('-pub_date')[:5]
+    output = ', '.join([q.question_text for q in latest_question_list])
+    return HttpResponse(output)
+
+# Leave the rest of the views (detail, results, vote) unchanged
+```
+
+Note: the page's design is hard-coded in the view. If you want to change the way the page looks, you'll have to edit this Python code. Therefore, we use Templates to separate design from Python by creating a template Python can use.
+
+- Create a directory called templates in your polls directory.
+
+You can configure in TEMPLATES settings how Django will look for templates, but by default it will look for a file "templates" inside each app.
+
+- Inside the templates directory create another directory called polls.
+- Inside this directory create a file called index.html
+- Write the index.html code
+
+>polls/templates/polls/index.html
+```html
+{% if latest_question_list %}
+    <ul>
+    {% for question in latest_question_list %}
+        <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
+```
+
+- Update index view in polls/views.py to use the template
+```python
+from django.http import HttpResponse
+from django.template import loader
+
+from .models import Question
+
+
+def index(request):
+    latest_question_list = Question.objects.order_by('-pub_date')[:5]
+    template = loader.get_template('polls/index.html')
+    context = {
+        'latest_question_list': latest_question_list,
+    }
+    return HttpResponse(template.render(context, request))
+```
+
+The code loads the template and passes it a context. The context is a dictionary mapping template variable names to Python objects.
+
+It's very common to load a template, fill a context, and return an HttpResponse object with the result of the rendered template. Django provides a shortcut using render().
+
+The render() function takes the request object as its first argument, a template name as its second argument and a dictionary as its optional third argument. Then, it returns an HttpResponse object of the given template rendered with the given context.
+
+- Apply render() to views.py for index(). Remove loader but keep HttpResponse for the other functions.
+``` python
+from django.shortcuts import render
+
+from .models import Question
+
+
+def index(request):
+    latest_question_list = Question.objects.order_by('-pub_date')[:5]
+    context = {'latest_question_list': latest_question_list}
+    return render(request, 'polls/index.html', context)
+```
