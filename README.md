@@ -494,3 +494,85 @@ def index(request):
     context = {'latest_question_list': latest_question_list}
     return render(request, 'polls/index.html', context)
 ```
+
+- Make the view raise a 404 error if the requested ID doesn't exist.
+
+>polls/views.py
+```python
+from django.http import Http404
+from django.shortcuts import render
+
+from .models import Question
+# ...
+def detail(request, question_id):
+    try:
+        question = Question.objects.get(pk=question_id)
+    except Question.DoesNotExist:
+        raise Http404("Question does not exist")
+    return render(request, 'polls/detail.html', {'question': question})
+```
+- Write a quick template for the detail view.
+
+>polls/templates/polls/detail.html
+```html
+{{ question }}
+```
+
+- Create a shortcut for rasing 404 error.
+>polls/views.py
+```python
+from django.shortcuts import get_object_or_404, render
+
+from .models import Question
+# ...
+def detail(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/detail.html', {'question': question})
+```
+
+- Refine the detail.html
+>polls/templates/polls/detail.html
+```html
+<h1>{{ question.question_text }}</h1>
+<ul>
+{% for choice in question.choice_set.all %}
+    <li>{{ choice.choice_text }}</li>
+{% endfor %}
+</ul>
+```
+- Remove harcoded URLs in templates
+
+>polls/index.html
+```html
+<li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li>
+```
+Django looks up the URL definition as specified in polls.urls module.
+
+- Change the detail url and add 'specifics' to it.
+>polls.urls.py
+```python
+path('specifics/<int:question_id>/', views.detail, name='detail')
+```
+In real Django projects there are several apps, which may have equal url names between them, so in order to differentiate which url is associated with each app, when we use {% url %} template tag, we can Namespace the urls.
+
+- Namespace polls app urls.
+>polls/urls.py
+```python
+from django.urls import path
+
+from . import views
+
+app_name = 'polls'
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('<int:question_id>/', views.detail, name='detail'),
+    path('<int:question_id>/results/', views.results, name='results'),
+    path('<int:question_id>/vote/', views.vote, name='vote'),
+]
+```
+
+- Change the index.html file in order to be namespaced.
+>polls/templates/polls/index.html
+```html
+<li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+```
