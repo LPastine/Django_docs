@@ -576,3 +576,23 @@ urlpatterns = [
 ```html
 <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
 ```
+
+## Excercise 4
+
+- Writing more views(detail, results, vote)
+- Wire these views into the polls.urls.
+- Change index() view so that it displays the latest 5 poll questions in the system, separated with commas, according to the publication date.
+- Create a directory called templates in your polls directory.
+- Inside the templates directory create another directory called polls.
+- Inside this directory create a file called index.html
+- Write the index.html code
+- Update index view in polls/views.py to use the template
+- Apply render() to views.py for index(). Remove loader but keep HttpResponse for the other functions.
+- Make the view raise a 404 error if the requested ID doesn't exist.
+- Write a quick template for the detail view.
+- Create a shortcut for rasing 404 error.
+- Refine the detail.html
+- Remove harcoded URLs in templates
+- Change the detail url and add 'specifics' to it.
+- Namespace polls app urls.
+- Change the index.html file in order to be namespaced.
