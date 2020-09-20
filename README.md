@@ -601,5 +601,157 @@ index.html
 - Change the index.html file in order to be namespaced.
 
 detail.html
-- Display te question as a heading
+- Display the question as a heading
 - Display a list of choices.
+
+# Django Tutorial 4
+
+## Forms
+
+- Write a form element in detail.html
+>polls/detail.html
+```html
+<h1>{{ question.question_text }}</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'polls:vote' question.id %}" method="post">
+{% csrf_token %}
+{% for choice in question.choice_set.all %}
+    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+    <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
+{% endfor %}
+<input type="submit" value="Vote">
+</form>
+```
+- Implement vote() function.
+>polls/views.py
+
+```python
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+
+from .models import Choice, Question
+# ...
+def vote(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST['choice'])
+    except (KeyError, Choice.DoesNotExist):
+        # Redisplay the question voting form.
+        return render(request, 'polls/detail.html', {
+            'question': question,
+            'error_message': "You didn't select a choice.",
+        })
+    else:
+        selected_choice.votes += 1
+        selected_choice.save()
+        # Always return an HttpResponseRedirect after successfully dealing
+        # with POST data. This prevents data from being posted twice if a
+        # user hits the Back button.
+        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+```
+
+- Write the results view
+>polls/views.py
+```python
+from django.shortcuts import get_object_or_404, render
+
+
+def results(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/results.html', {'question': question})
+```
+- Create results.html
+>polls/results.html
+```html
+<h1>{{ question.question_text }}</h1>
+
+<ul>
+{% for choice in question.choice_set.all %}
+    <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+```
+As we can perceive in the views.py code there's a pattern in how Web Development works: we get data from the database according a parameter passed in the URL; we load a template; we return a rendered the template.
+
+Convert views.py to use generic views.
+- Convert the URLconf.
+- Delete some of the old, unneeded views.
+- Introduce new views based on Django's generic views.
+
+>polls/urls.py
+```python
+from django.urls import path
+
+from . import views
+
+app_name = 'polls'
+urlpatterns = [
+    path('', views.IndexView.as_view(), name='index'),
+    path('<int:pk>/', views.DetailView.as_view(), name='detail'),
+    path('<int:pk>/results/', views.ResultsView.as_view(), name='results'),
+    path('<int:question_id>/vote/', views.vote, name='vote'),
+]
+```
+>polls/views.py
+```python
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+from django.views import generic
+
+from .models import Choice, Question
+
+
+class IndexView(generic.ListView):
+    template_name = 'polls/index.html'
+    context_object_name = 'latest_question_list'
+
+    def get_queryset(self):
+        """Return the last five published questions."""
+        return Question.objects.order_by('-pub_date')[:5]
+
+
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = 'polls/detail.html'
+
+
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'polls/results.html'
+
+
+def vote(request, question_id):
+    ... # same as above, no changes needed.
+```
+
+Two generic views:
+
+- ListView = abstracts the concept of displaying a list of objects
+- DetailView = abstracts the concept of displaying a detail page for a particular type of object.
+
+Each generic view needs to know what model it will be acting upon. This is provided using the model attribute.
+
+We've change question_id to pk in urls because generic views expect this.
+
+## Excercise 5
+
+### Views
+
+- Implement vote() function.
+- Use generic views for Index, Detail and Result views.
+
+
+### URLs
+
+- Change URLconfs for generic views.
+
+### Templates
+
+- Write a form element in detail.html
+- Create results.html
