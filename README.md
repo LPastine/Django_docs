@@ -955,3 +955,45 @@ Rules of thumb on testing:
 - a separate TestClass for each model or view.
 - a separate test method for each set of conditions you want to test.
 - test method names that describe their function.
+
+# Django Tutorial 6
+
+## Frontend - Static Files
+
+In Django we refer to images, JavaScript, or CSS necessary to render the complete web page as "Static Files"
+
+Especially for big projects, that have several apps, we use django.contrib.staticfiles to collect the static files for each of the apps into a single location that can be served in production.
+
+- Create a style.css
+
+Django will look for static files there similarly to how Django finds templates in polls/templates.
+
+STATICFILES_FINDERS setting contains a list of finders that know how to discover static files from various sources.
+
+One of the defaults is AppDirectoriesFinder which looks for 'static' subdirectory in each of the INSTALLED_APPS.
+
+The same as templates the structure for the directory is:
+>polls/static/polls/style.css
+```css
+li a {
+    color: green;
+}
+```
+- Load the style in the index.html
+>polls/templates/polls/index.html
+```html
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+```
+
+- Create a subdirectory for images and add a background image.
+(polls/static/polls/images/background.gif)
+
+- Add the image to the stylesheet.
+>polls/static/polls/style.css
+```css
+body {
+    background: white url("images/background.gif") no-repeat;
+}
+```
